@@ -3,21 +3,30 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 if(isset( $_POST['savekey'] ) && wp_verify_nonce($_REQUEST['savekey'], 'mode_save_access_key')  && current_user_can('administrator')){
 	
-	$option_name = 'fcm_access_key_option';
+  $option_name = 'fcm_access_key_option';
 	$new_value = sanitize_text_field($_POST['access_key']);
-	 
+   
+  $fcm_topic_option = 'fcm_topic_option';
+  $new_fcm_topic_value = sanitize_text_field($_POST['fcm_topic']);
+
+  $deprecated = null;
+  $autoload = 'no';
+
 	if ( get_option( $option_name ) !== false ) {
-	 
 		// The option already exists, so update it.
 		update_option( $option_name, $new_value );
-	 
 	} else {
-	 
 		// The option hasn't been created yet, so add it with $autoload set to 'no'.
-		$deprecated = null;
-		$autoload = 'no';
 		add_option( $option_name, $new_value, $deprecated, $autoload );
-	}
+  }
+  
+  if ( get_option( $fcm_topic_option ) !== false ) {
+		// The option already exists, so update it.
+		update_option( $fcm_topic_option, $new_fcm_topic_value );
+	} else {
+		// The option hasn't been created yet, so add it with $autoload set to 'no'.
+		add_option( $fcm_topic_option, $new_fcm_topic_value, $deprecated, $autoload );
+  }
 	
 	//show message
   echo "<div class='update-nag notice'>
@@ -35,6 +44,11 @@ if(isset( $_POST['savekey'] ) && wp_verify_nonce($_REQUEST['savekey'], 'mode_sav
 	<tr>
 	<th>
 	<input type="text" name="access_key" id="access_key" value="<?php echo get_option('fcm_access_key_option'); ?>" placeholder="API access key from Google Firebase Console"/><span id="access_key_error" style="color:red;"></span>
+	</th>
+	</tr>
+  <tr>
+	<th>
+	<input type="text" name="fcm_topic" id="fcm_topic" value="<?php echo get_option('fcm_topic_option'); ?>" placeholder="FCM Topic to send messages to"/><span id="fcm_topic_error" style="color:red;"></span>
 	</th>
 	</tr>
 	<tr>

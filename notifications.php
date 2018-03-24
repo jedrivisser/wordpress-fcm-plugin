@@ -29,3 +29,13 @@ function ss_manage_fcm_settings(){
 include('inc/fcm-settings.php');
 
 }
+
+function send_message_on_publish($ID, $post) {
+  include('inc/functions.php');
+
+  $title = 'New Post Available';
+  $msgtext = $post->post_title;
+  
+  send_push($msgtext, $title);
+}
+add_action( 'publish_post', 'send_message_on_publish', 10, 2 );

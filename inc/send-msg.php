@@ -4,40 +4,15 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 if(isset( $_POST['sendmsg'] ) && wp_verify_nonce($_REQUEST['sendmsg'], 'mode_send_msg')  && current_user_can('administrator')){
 
 	$title = sanitize_text_field($_POST['title']);
-	$msgtext = sanitize_text_field($_POST['msg']);
-	// API access key from Google API's Console
-	$googleFcmKey = get_option('fcm_access_key_option');
-	define( 'API_ACCESS_KEY', $googleFcmKey );
-	//firebase topic
-	$to = '/topics/all';
-	//firebase url 
-	$url = 'https://fcm.googleapis.com/fcm/send';
-	// prep the bundle
-	$msg = array
-	(
-		'body' 	=> $msgtext,
-		'title'		=> $title,
-		'vibrate'	=> 1,
-		'sound'		=> 1,
-	);
-	$fields = array
-	(
-		'to' => $to,
-		'notification' => $msg
-	);
-	 //send request to firebase
-	 $response = wp_remote_post($url, array(
-        'method' => 'POST',
-		'blocking' => true,
-		'headers' => array( 'Authorization' => 'key='. API_ACCESS_KEY,'Content-Type' => 'application/json' ),
-        'httpversion' => '1.0',
-        'sslverify' => false,
-        'body' => json_encode($fields),
-		)
-    );
-	//response from google firebase
-	$result = $response['response']['message'];
+  $msgtext = sanitize_text_field($_POST['msg']);
+  
+  include('functions.php');
+
+  $response = send_push($msgtext, $title);
 	
+  //response from google firebase
+  $result = $response['response']['message'];
+
 	// if response success
 	if($result=='OK'){
 	echo "<div class='update-nag notice'>
